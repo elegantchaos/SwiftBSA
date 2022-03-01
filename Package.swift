@@ -9,23 +9,39 @@ import PackageDescription
 
 let package = Package(
     name: "BSA",
+    
     platforms: [
-        .macOS(.v12), .iOS(.v15), .tvOS(.v15), .watchOS(.v8)
+        .macOS(.v12)
     ],
+    
     products: [
         .library(
             name: "BSA",
             targets: ["BSA"]),
     ],
+    
     dependencies: [
+        .package(url: "https://github.com/elegantchaos/BinaryCoding.git", from: "1.0.0"),
+        .package(url: "https://github.com/tsolomko/SWCompression.git", .upToNextMajor(from: "4.7.0")),
         .package(url: "https://github.com/elegantchaos/XCTestExtensions.git", from: "1.4.2")
     ],
+    
     targets: [
+        
         .target(
             name: "BSA",
-            dependencies: []),
+            dependencies: [
+                .product(name: "BinaryCoding", package: "BinaryCoding"),
+                .product(name: "SWCompression", package: "SWCompression"),
+            ]
+        ),
+        
         .testTarget(
             name: "BSATests",
-            dependencies: ["BSA", "XCTestExtensions"]),
+            dependencies: ["BSA", "XCTestExtensions"],
+            resources: [
+                .process("Resources"),
+            ]
+        )
     ]
 )
