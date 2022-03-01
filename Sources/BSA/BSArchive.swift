@@ -27,6 +27,27 @@ public struct BSArchive {
             folders.append(try decoder.decode(BSAFolder.self))
         }
 
+        var container = try decoder.unkeyedContainer()
+        for i in 0..<folders.count {
+            var folder = folders[i]
+
+            if header.flags.contains2(.includeDirectoryNames) {
+                let length = try container.decode(UInt8.self)
+                var chars = try container.decodeArray(of: UInt8.self, count: length)
+                if chars.last == 0 {
+                    chars.removeLast()
+                }
+                folder.name = String(bytes: chars, encoding: decoder.stringEncoding)
+            }
+            
+            var files: [BSAFile] = []
+            for _ in 0..<folder.count {
+                files.append(try container.decode(BSAFile.self))
+            }
+            folder.files = files
+            folders[i] = folder
+        }
+
         if header.flags.contains2(.includeFileNames) {
             for i in 0..<folders.count {
                 for j in 0..<folders[i].files.count {
@@ -74,10 +95,6 @@ public struct BSArchive {
                     let compressedData = Data(data[offset..<offset+size])
                     let decompressed = try LZ4.decompress(data: compressedData)
                     try decompressed.write(to: fileURL)
-//                    let decompressed = try (compressedData as NSData).decompressed(using: .lz4)
-//                    try decompressed.write(to: fileURL)
-//                    try compressedData.lz4Decompress(originalSize: originalLength).write(to: fileURL)
-//                    try decompress(compressedData, originalLength: originalLength, to: fileURL)
                 } else {
                     let fileData = data[offset..<offset+size]
                     try fileData.write(to: fileURL)
@@ -85,65 +102,4 @@ public struct BSArchive {
             }
         }
     }
-    
-    func decompress(_ data: Data, originalLength: UInt32, to url: URL) throws {
-        let outputFile = try FileHandle(forWritingTo: url)
-        let algorithm: Algorithm = header.version == 105 ? .lz4 : .zlib
-        let outputFilter = try OutputFilter(.decompress, using: algorithm) { decompressed in
-            if let data = decompressed {
-                outputFile.write(data)
-            }
-        }
-        
-        try outputFilter.write(Data([UInt8(0x62), UInt8(0x76), UInt8(0x34), UInt8(0x31)]))
-        try outputFilter.write(UInt32(originalLength).littleEndianBytes)
-        try outputFilter.write(UInt32(data.count).littleEndianBytes)
-        let bufferSize = 32_768
-        var offset = 0
-        var size = data.count
-        while true {
-            let chunkSize = min(size, bufferSize)
-            let chunk = data[offset..<(offset+chunkSize)]
-            try outputFilter.write(chunk)
-            size -= chunkSize
-            offset += chunkSize
-            if size == 0 {
-//                try outputFilter.write(Data([0x62, 0x76, 0x34, 0x24]))
-                try outputFilter.finalize()
-                break
-            }
-        }
-
-        outputFile.closeFile()
-    }
-}
-
-extension Data {
-
-    func lz4Decompress(originalSize: UInt32) throws -> Data {
-        let destinationBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: Int(originalSize))
-        let decompressed = try withUnsafeBytes { (sourceBuffer: UnsafeRawBufferPointer) throws -> Data in
-
-            let size = compression_decode_buffer(
-                destinationBuffer, Int(originalSize),
-                sourceBuffer.baseAddress!, sourceBuffer.count,
-                nil,    // scratch buffer automatically handled
-                COMPRESSION_LZ4_RAW
-            )
-
-            if size == 0 {
-                print("Error ")
-                throw DecompressError.decompressionFailed
-            }
-
-            print("Original compressed size: \(sourceBuffer.count) | Decompressed size: \(size)")
-
-            return Data(bytesNoCopy: destinationBuffer, count: size, deallocator: .free)
-        }
-        return decompressed
-     }
-}
-
-enum DecompressError: Error {
-    case decompressionFailed
 }

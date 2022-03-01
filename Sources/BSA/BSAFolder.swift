@@ -7,8 +7,9 @@ import BinaryCoding
 import Foundation
 
 public struct BSAFolder: BinaryCodable {
-    let name: String?
+    var name: String?
     let nameHash: UInt64
+    let count: UInt32
     let offset: UInt32
     var files: [BSAFile]
     
@@ -19,24 +20,10 @@ public struct BSAFolder: BinaryCodable {
         _ = try container.decode(UInt32.self)
         self.offset = try container.decode(UInt32.self)
         _ = try container.decode(UInt32.self)
-        
-        if decoder.decodeBSADirectoryNames {
-            let length = try container.decode(UInt8.self)
-            var chars = try container.decodeArray(of: UInt8.self, count: length)
-            if chars.last == 0 {
-                chars.removeLast()
-            }
-            self.name = String(bytes: chars, encoding: decoder.stringEncoding)
-        } else {
-            self.name = nil
-        }
-        
-        var files: [BSAFile] = []
-        for _ in 0..<count {
-            files.append(try container.decode(BSAFile.self))
-        }
-
-        self.files = files
+    
+        self.count = count
+        self.name = nil
+        self.files = []
     }
     
     public func binaryEncode(to encoder: BinaryEncoder) throws {

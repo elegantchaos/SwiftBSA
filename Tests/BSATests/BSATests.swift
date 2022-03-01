@@ -25,11 +25,16 @@ class BSATests: XCTestCase {
         XCTAssertEqual(bsa.header.padding, 0)
     }
     
-    func testExtraction() throws {
-        let url = Bundle.module.url(forResource: "Example", withExtension: "bsa")!
+    func testExtraction(_ name: String) throws -> URL {
+        let url = Bundle.module.url(forResource: name, withExtension: "bsa")!
         let bsa = try BSArchive(url: url)
-        let output = outputDirectory().appendingPathComponent("Example")
+        let output = outputDirectory().appendingPathComponent(name)
         try bsa.extract(to: output)
+        return output
+    }
+    
+    func testExtractExample() throws {
+        let output = try testExtraction("Example")
 
         let expectedURL = output.appendingPathComponent("textures/clothes/blackgloves/glovesm_d.dds")
         XCTAssertTrue(FileManager.default.fileExists(atPath: expectedURL.path))
@@ -37,4 +42,9 @@ class BSATests: XCTestCase {
         let size = try expectedURL.resourceValues(forKeys: [.fileSizeKey]).fileSize
         XCTAssertEqual(size, 174904)
     }
+    
+    func testExtractMCMHelper() throws {
+        try testExtraction("MCMHelper")
+    }
+
 }
