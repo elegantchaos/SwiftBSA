@@ -30,5 +30,11 @@ class BSATests: XCTestCase {
         let bsa = try BSArchive(url: url)
         let output = outputDirectory().appendingPathComponent("Example")
         try bsa.extract(to: output)
+
+        let expectedURL = output.appendingPathComponent("textures/clothes/blackgloves/glovesm_d.dds")
+        XCTAssertTrue(FileManager.default.fileExists(atPath: expectedURL.path))
+
+        let size = try expectedURL.resourceValues(forKeys: [.fileSizeKey]).fileSize
+        XCTAssertEqual(size, 174904)
     }
 }
