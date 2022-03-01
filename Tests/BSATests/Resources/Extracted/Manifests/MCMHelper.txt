@@ -1,0 +1,15 @@
+interface
+interface/translations
+interface/translations/mcmhelper_english.txt, 416
+interface/translations/mcmhelper_polish.txt, 452
+interface/translations/mcmhelper_spanish.txt, 428
+interface/translations/mcmhelper_czech.txt, 384
+interface/translations/mcmhelper_italian.txt, 416
+interface/translations/mcmhelper_japanese.txt, 284
+interface/translations/mcmhelper_french.txt, 344
+interface/translations/mcmhelper_german.txt, 380
+interface/translations/mcmhelper_russian.txt, 412
+scripts
+scripts/ski_configmenu.pex, 16529
+scripts/mcm_configbase.pex, 2143
+scripts/mcm.pex, 1155

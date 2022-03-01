@@ -1,0 +1,4 @@
+textures
+textures/clothes
+textures/clothes/blackgloves
+textures/clothes/blackgloves/glovesm_d.dds, 174904

@@ -25,22 +25,33 @@ class BSATests: XCTestCase {
         XCTAssertEqual(bsa.header.padding, 0)
     }
     
-    func testExtraction(_ name: String) throws -> URL {
+    @discardableResult func testExtraction(_ name: String) throws -> URL {
         let url = Bundle.module.url(forResource: name, withExtension: "bsa")!
         let bsa = try BSArchive(url: url)
         let output = outputDirectory().appendingPathComponent(name)
         try bsa.extract(to: output)
+        
+        var paths: [String] = []
+        let enumerator = FileManager.default.enumerator(at: output, includingPropertiesForKeys: nil, options: [.producesRelativePathURLs])!
+        for case let url as URL in enumerator {
+            let size = try url.resourceValues(forKeys: [.fileSizeKey]).fileSize
+            let sizeString = size.map { ", \($0)" } ?? ""
+            paths.append("\(url.relativePath)\(sizeString)")
+        }
+        let manifest = paths.joined(separator: "\n")
+
+        if let manifestURL = Bundle.module.url(forResource: name, withExtension: "txt") {
+            let loadedManifest = String(data: try Data(contentsOf: manifestURL), encoding: .utf8)!
+            XCTAssertEqual(manifest, loadedManifest)
+        } else {
+            print(manifest)
+        }
+        
         return output
     }
     
     func testExtractExample() throws {
-        let output = try testExtraction("Example")
-
-        let expectedURL = output.appendingPathComponent("textures/clothes/blackgloves/glovesm_d.dds")
-        XCTAssertTrue(FileManager.default.fileExists(atPath: expectedURL.path))
-
-        let size = try expectedURL.resourceValues(forKeys: [.fileSizeKey]).fileSize
-        XCTAssertEqual(size, 174904)
+        try testExtraction("Example")
     }
     
     func testExtractMCMHelper() throws {
