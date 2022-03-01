@@ -47,4 +47,11 @@ class BSATests: XCTestCase {
         try testExtraction("MCMHelper")
     }
 
+    func testExtractSkyUI() throws {
+        try testExtraction("SkyUI_SE")
+    }
+    
+    func testExtractRaceMenu() throws {
+        try testExtraction("RaceMenu")
+    }
 }
