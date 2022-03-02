@@ -11,7 +11,7 @@ import XCTestExtensions
 class HeaderTests: XCTestCase {
     func testCounts() throws {
         let folders = [
-            FolderSpec(url: URL(fileURLWithPath: "textures/clothes/blackgloves"), files: [
+            FolderSpec(path: "textures/clothes/blackgloves", files: [
                 .init(url: URL(fileURLWithPath: "glovesm_d.dds"))
             ])
         ]

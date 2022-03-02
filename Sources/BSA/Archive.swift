@@ -128,23 +128,25 @@ public struct Archive {
     }
     
     public mutating func pack(url: URL) throws {
-        let folders = try packFolder(url: url)
+        let folders = try packFolder(url: url, to: "")
         let sortedFolders = folders.sorted()
         let header = BSAHeader(version: version, flags: flags, fileFlags: fileFlags, folders: sortedFolders)
         print(header)
     }
     
-    func packFolder(url: URL) throws -> [FolderSpec] {
+    func packFolder(url: URL, to path: String) throws -> [FolderSpec] {
         let fm = FileManager.default
         
         var folders: [FolderSpec] = []
         var files: [FileSpec] = []
-        let urls = try fm.contentsOfDirectory(at: url, includingPropertiesForKeys: nil, options: [.producesRelativePathURLs])
+        let urls = try fm.contentsOfDirectory(at: url, includingPropertiesForKeys: nil)
         for url in urls {
             var isDirectory: ObjCBool = false
             if fm.fileExists(atPath: url.path, isDirectory: &isDirectory) {
                 if isDirectory.boolValue {
-                    folders.append(contentsOf: try packFolder(url: url))
+                    let name = url.lastPathComponent.lowercased()
+                    let subpath = path.isEmpty ? name : "\(path)\\\(name)"
+                    folders.append(contentsOf: try packFolder(url: url, to: subpath))
                 } else {
                     files.append(FileSpec(url: url))
                 }
@@ -153,8 +155,10 @@ public struct Archive {
             
         }
         
-        let thisFolder = FolderSpec(url: url, files: files)
-        folders.append(thisFolder)
+        if files.count > 0 {
+            let thisFolder = FolderSpec(path: path, files: files)
+            folders.append(thisFolder)
+        }
         
         return folders
     }
@@ -165,9 +169,7 @@ struct FolderSpec {
     let name: Data
     let files: [FileSpec]
     
-    init(url: URL, files: [FileSpec]) {
-        let path = url.relativePath.replacingOccurrences(of: "/", with: "\\").lowercased()
-        
+    init(path: String, files: [FileSpec]) {
         var data = Data()
         if let bytes = path.data(using: .windowsCP1252) {
             data.append(UInt8(bytes.count))
