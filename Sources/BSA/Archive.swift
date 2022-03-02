@@ -7,7 +7,6 @@ import BinaryCoding
 import Compression
 import Foundation
 import Logger
-import SWCompression
 
 let packingChannel = Channel("BSA Pack")
 let unpackingChannel = Channel("BSA Unpack")
@@ -18,16 +17,16 @@ public struct Archive {
     public var data: Data
     public var version: Int
     public var flags: BSAFlags
-    public var fileFlags: UInt16
-    public var folders: [BSAFolder]
+    public var fileFlags: FileFlags
+    public var folders: Folders
     
-    public init(version: Int = 105, flags: BSAFlags = [.includeFileNames, .includeDirectoryNames], fileFlags: UInt16 = 0) {
+    public init(version: Int = 105, flags: BSAFlags = [.includeFileNames, .includeDirectoryNames], fileFlags: FileFlags = FileFlags()) {
         self.id = "BSA\0"
         self.version = version
         self.flags = flags
         self.fileFlags = fileFlags
         self.data = Data()
-        self.folders = []
+        self.folders = Folders()
     }
     
     public init(url: URL) throws {
@@ -37,16 +36,26 @@ public struct Archive {
         let header = try decoder.decode(BSAHeader.self)
         
         decoder.header = header
-        var container = try decoder.unkeyedContainer()
 
-        let records = try container.decodeArray(of: FolderRecord.self, count: header.folderCount)
-
-        var folders: [BSAFolder] = []
+        let records = try decoder.decodeArray(of: FolderRecord.self, count: Int(header.folderCount))
+        let folders = try Folders(records: records, decoder: decoder)
+        
+        self.id = header.fileID
+        self.version = Int(header.version)
+        self.flags = header.flags
+        self.fileFlags = FileFlags(rawValue: header.fileFlags)
+        self.data = data
+        self.folders = folders
+    }
+    
+    static func decodeFolders(from records: [FolderRecord], using decoder: BSADecoder) throws -> [Folder] {
+        let includingNames = decoder.decodeBSADirectoryNames
+        var folders: [Folder] = []
         for record in records {
             let name: String?
-            if header.flags.contains2(.includeDirectoryNames) {
-                let length = try container.decode(UInt8.self)
-                var chars = try container.decodeArray(of: UInt8.self, count: length)
+            if includingNames {
+                let length = try decoder.decode(UInt8.self)
+                var chars = try decoder.decodeArray(of: UInt8.self, count: Int(length))
                 if chars.last == 0 {
                     chars.removeLast()
                 }
@@ -58,82 +67,17 @@ public struct Archive {
             
             var files: [BSAFile] = []
             for _ in 0..<record.count {
-                files.append(try container.decode(BSAFile.self))
+                files.append(try decoder.decode(BSAFile.self))
             }
             
-            let folder = BSAFolder(name: name, hash: record.nameHash, offset: record.offset, files: files)
+            let folder = Folder(name: name, hash: record.nameHash, offset: record.offset, files: files)
             folders.append(folder)
         }
-
-        if header.flags.contains2(.includeFileNames) {
-            for i in 0..<folders.count {
-                for j in 0..<folders[i].files.count {
-                    folders[i].files[j].name = try decoder.decode(String.self)
-                    hashChannel.debug("file: \(folders[i].files[j].name!), hash: \(folders[i].files[j].nameHash)")
-                }
-            }
-        }
-        
-        self.id = header.fileID
-        self.version = Int(header.version)
-        self.flags = header.flags
-        self.fileFlags = header.fileFlags
-        self.data = data
-        self.folders = folders
-    }
-    
-    static func decode(_ count: Int, recordsUsingDecoder decoder: BSADecoder) throws -> [FolderRecord] {
-        var records: [FolderRecord] = []
-        for _ in 0..<count {
-            records.append(try decoder.decode(FolderRecord.self))
-        }
-        
-        return records
+        return folders
     }
     
     public func extract(to url: URL) throws {
-        let fm = FileManager.default
-        
-        for folder in folders {
-            let folderPath = folder.name ?? "\(folder.hash)"
-            var folderURL = url
-            for component in folderPath.split(whereSeparator: { c in (c == "\\") || (c == "/") }) {
-                folderURL = folderURL.appendingPathComponent(String(component))
-            }
-            try? fm.createDirectory(at: folderURL, withIntermediateDirectories: true)
-            for file in folder.files {
-                let fileName = file.name ?? "\(file.nameHash)"
-                let fileURL = folderURL.appendingPathComponent(fileName)
-                var offset = Int(file.offset)
-                var size = Int(file.size)
-                if flags.contains2(.embeddedFileNames) {
-                    let nameLength = Int(data[offset])
-                    offset += 1
-                    size -= 1
-                    #if DEBUG
-                    let nameData = data[offset..<offset+nameLength]
-                    if let name = String(data: nameData, encoding: .utf8) {
-                        print("Embedded name \(name)")
-                    }
-                    #endif
-                    offset += nameLength
-                    size -= nameLength
-                }
-                if file.isCompressed {
-                    let lengthBytes = data[offset..<offset+4].littleEndianBytes
-                    let originalLength = try UInt32(littleEndianBytes: lengthBytes)
-                    offset += 4 // skip the original size
-                    size -= 4
-                    let compressedData = Data(data[offset..<offset+size])
-                    let decompressed = try LZ4.decompress(data: compressedData)
-                    assert(originalLength == decompressed.count)
-                    try decompressed.write(to: fileURL)
-                } else {
-                    let fileData = data[offset..<offset+size]
-                    try fileData.write(to: fileURL)
-                }
-            }
-        }
+        try folders.extract(to: url, from: data, embeddedNames: flags.contains2(.embeddedFileNames))
     }
     
     public mutating func pack(url: URL) throws {
@@ -170,6 +114,10 @@ public struct Archive {
         }
         
         return folders
+    }
+    
+    public var folderCount: Int {
+        folders.folders.count
     }
 }
 

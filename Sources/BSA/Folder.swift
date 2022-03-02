@@ -6,7 +6,7 @@
 import BinaryCoding
 import Foundation
 
-public struct BSAFolder {
+public struct Folder {
     var name: String?
     let hash: UInt64
     let offset: UInt32
