@@ -49,3 +49,5 @@ Backup[ ]of[ ]*.numbers/
 
 # compiled python
 *.pyc
+Tests/BSATests/Resources/Manifests/RaceMenu.txt
+Tests/BSATests/Resources/Packed/RaceMenu.bsa
