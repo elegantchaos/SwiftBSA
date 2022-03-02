@@ -37,32 +37,32 @@ public struct Archive {
         let header = try decoder.decode(BSAHeader.self)
         
         decoder.header = header
+        var container = try decoder.unkeyedContainer()
+
+        let records = try container.decodeArray(of: FolderRecord.self, count: header.folderCount)
 
         var folders: [BSAFolder] = []
-        for _ in 0..<header.folderCount {
-            folders.append(try decoder.decode(BSAFolder.self))
-        }
-
-        var container = try decoder.unkeyedContainer()
-        for i in 0..<folders.count {
-            var folder = folders[i]
-
+        for record in records {
+            let name: String?
             if header.flags.contains2(.includeDirectoryNames) {
                 let length = try container.decode(UInt8.self)
                 var chars = try container.decodeArray(of: UInt8.self, count: length)
                 if chars.last == 0 {
                     chars.removeLast()
                 }
-                folder.name = String(bytes: chars, encoding: decoder.stringEncoding)
-                hashChannel.debug("folder: \(folder.name!), hash: \(folder.nameHash)")
+                name = String(bytes: chars, encoding: decoder.stringEncoding)
+                hashChannel.debug("folder: \(name!), hash: \(record.nameHash)")
+            } else {
+                name = nil
             }
             
             var files: [BSAFile] = []
-            for _ in 0..<folder.count {
+            for _ in 0..<record.count {
                 files.append(try container.decode(BSAFile.self))
             }
-            folder.files = files
-            folders[i] = folder
+            
+            let folder = BSAFolder(name: name, hash: record.nameHash, offset: record.offset, files: files)
+            folders.append(folder)
         }
 
         if header.flags.contains2(.includeFileNames) {
@@ -82,11 +82,20 @@ public struct Archive {
         self.folders = folders
     }
     
+    static func decode(_ count: Int, recordsUsingDecoder decoder: BSADecoder) throws -> [FolderRecord] {
+        var records: [FolderRecord] = []
+        for _ in 0..<count {
+            records.append(try decoder.decode(FolderRecord.self))
+        }
+        
+        return records
+    }
+    
     public func extract(to url: URL) throws {
         let fm = FileManager.default
         
         for folder in folders {
-            let folderPath = folder.name ?? "\(folder.nameHash)"
+            let folderPath = folder.name ?? "\(folder.hash)"
             var folderURL = url
             for component in folderPath.split(whereSeparator: { c in (c == "\\") || (c == "/") }) {
                 folderURL = folderURL.appendingPathComponent(String(component))
@@ -134,10 +143,10 @@ public struct Archive {
         print(header)
     }
     
-    func packFolder(url: URL, to path: String) throws -> [FolderSpec] {
+    func packFolder(url: URL, to path: String) throws -> [FolderPromise] {
         let fm = FileManager.default
         
-        var folders: [FolderSpec] = []
+        var folders: [FolderPromise] = []
         var files: [FileSpec] = []
         let urls = try fm.contentsOfDirectory(at: url, includingPropertiesForKeys: nil)
         for url in urls {
@@ -156,39 +165,11 @@ public struct Archive {
         }
         
         if files.count > 0 {
-            let thisFolder = FolderSpec(path: path, files: files)
+            let thisFolder = FolderPromise(path: path, files: files)
             folders.append(thisFolder)
         }
         
         return folders
-    }
-}
-
-struct FolderSpec {
-    let hash: UInt64
-    let name: Data
-    let files: [FileSpec]
-    
-    init(path: String, files: [FileSpec]) {
-        var data = Data()
-        if let bytes = path.data(using: .windowsCP1252) {
-            data.append(UInt8(bytes.count))
-            data.append(contentsOf: bytes)
-            data.append(UInt8(0))
-        }
-        
-        self.hash = path.bsaHash
-        self.files = files
-        self.name = data
-    }
-}
-
-extension FolderSpec: Equatable {
-}
-
-extension FolderSpec: Comparable {
-    static func < (lhs: FolderSpec, rhs: FolderSpec) -> Bool {
-        lhs.hash < rhs.hash
     }
 }
 
