@@ -8,10 +8,10 @@ import XCTest
 import XCTestExtensions
 
 
-class BSATests: XCTestCase {
+class UnpackingTests: XCTestCase {
     func testLoading() throws {
         let url = Bundle.module.url(forResource: "Example", withExtension: "bsa")!
-        let bsa = try BSArchive(url: url)
+        let bsa = try Archive(url: url)
         
         XCTAssertEqual(bsa.header.fileID, "BSA\0")
         XCTAssertEqual(bsa.header.version, 105)
@@ -27,7 +27,7 @@ class BSATests: XCTestCase {
     
     @discardableResult func testExtraction(_ name: String) throws -> URL {
         let url = Bundle.module.url(forResource: name, withExtension: "bsa")!
-        let bsa = try BSArchive(url: url)
+        let bsa = try Archive(url: url)
         let output = outputDirectory().appendingPathComponent(name)
         try bsa.extract(to: output)
         

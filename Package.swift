@@ -22,6 +22,8 @@ let package = Package(
     
     dependencies: [
         .package(url: "https://github.com/elegantchaos/BinaryCoding.git", from: "1.0.0"),
+        .package(url: "https://github.com/elegantchaos/Files.git", from: "1.2.2"),
+        .package(url: "https://github.com/elegantchaos/Logger.git", from: "1.7.3"),
         .package(url: "https://github.com/tsolomko/SWCompression.git", .upToNextMajor(from: "4.7.0")),
         .package(url: "https://github.com/elegantchaos/XCTestExtensions.git", from: "1.4.2")
     ],
@@ -32,6 +34,7 @@ let package = Package(
             name: "BSA",
             dependencies: [
                 .product(name: "BinaryCoding", package: "BinaryCoding"),
+                .product(name: "Logger", package: "Logger"),
                 .product(name: "SWCompression", package: "SWCompression"),
             ]
         ),
@@ -40,7 +43,9 @@ let package = Package(
             name: "BSATests",
             dependencies: ["BSA", "XCTestExtensions"],
             resources: [
-                .process("Resources"),
+                .process("Resources/Packed"),
+                .process("Resources/Manifests"),
+                .copy("Resources/Unpacked")
             ]
         )
     ]

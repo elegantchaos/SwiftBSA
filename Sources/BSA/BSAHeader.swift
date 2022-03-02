@@ -17,4 +17,17 @@ public struct BSAHeader: BinaryCodable {
     public let totalFileNameLength: UInt32
     public let fileFlags: UInt16
     public let padding: UInt16
+    
+    init(version: Int = 105, flags: BSAFlags = [.includeFileNames, .includeDirectoryNames], fileFlags: UInt16 = 0, folders: [FolderSpec]) {
+        self.fileID = "BSA\0"
+        self.version = UInt32(version)
+        self.offset = 0x24
+        self.flags = flags
+        self.folderCount = 0
+        self.fileCount = 0
+        self.totalFolderNameLength = 0
+        self.totalFileNameLength = 0
+        self.fileFlags = fileFlags
+        self.padding = 0
+    }
 }
