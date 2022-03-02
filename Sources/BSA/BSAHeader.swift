@@ -10,15 +10,15 @@ public struct BSAHeader: BinaryCodable {
     public let fileID: Tag
     public let version: UInt32
     public let offset: UInt32
-    public let flags: BSAFlags
+    public let flags: Flags
     public let folderCount: UInt32
     public let fileCount: UInt32
     public let totalFolderNameLength: UInt32
     public let totalFileNameLength: UInt32
-    public let fileFlags: UInt16
+    public let content: ContentFlags
     public let padding: UInt16
     
-    init(version: Int = 105, flags: BSAFlags = [.includeFileNames, .includeDirectoryNames], fileFlags: FileFlags = FileFlags(), folders: [FolderPromise]) {
+    init(version: Int = 105, flags: Flags = [.includeFileNames, .includeDirectoryNames], content: ContentFlags = [], folders: [FolderPromise]) {
         
         var fileCount = 0
         var fileNameLength = 0
@@ -48,7 +48,7 @@ public struct BSAHeader: BinaryCodable {
         self.fileCount = UInt32(fileCount)
         self.totalFolderNameLength = UInt32(folderNameLength)
         self.totalFileNameLength = UInt32(fileNameLength)
-        self.fileFlags = fileFlags.rawValue
+        self.content = content
         self.padding = 0
     }
 }

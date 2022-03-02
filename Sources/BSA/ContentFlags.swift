@@ -4,10 +4,23 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 import Foundation
+import BinaryCoding
 
-public struct FileFlags: RawRepresentable {
+public struct ContentFlags: OptionSetFromEnum {
+    public enum Options: String, EnumForOptionSet {
+        case meshes
+        case textures
+        case menus
+        case sounds
+        case voices
+        case shaders
+        case trees
+        case fonts
+        case miscellaneous
+    }
+
     public let rawValue: UInt16
-
+    
     public init() {
         self.rawValue = 0
     }
@@ -17,5 +30,5 @@ public struct FileFlags: RawRepresentable {
     }
 }
 
-extension FileFlags: Equatable {
+extension ContentFlags: Equatable {
 }

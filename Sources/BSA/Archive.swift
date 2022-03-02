@@ -16,15 +16,15 @@ public struct Archive {
     public var id: Tag
     public var data: Data
     public var version: Int
-    public var flags: BSAFlags
-    public var fileFlags: FileFlags
+    public var flags: Flags
+    public var content: ContentFlags
     public var folders: Folders
     
-    public init(version: Int = 105, flags: BSAFlags = [.includeFileNames, .includeDirectoryNames], fileFlags: FileFlags = FileFlags()) {
+    public init(version: Int = 105, flags: Flags = [.includeFileNames, .includeDirectoryNames], content: ContentFlags = []) {
         self.id = "BSA\0"
         self.version = version
         self.flags = flags
-        self.fileFlags = fileFlags
+        self.content = content
         self.data = Data()
         self.folders = Folders()
     }
@@ -43,7 +43,7 @@ public struct Archive {
         self.id = header.fileID
         self.version = Int(header.version)
         self.flags = header.flags
-        self.fileFlags = FileFlags(rawValue: header.fileFlags)
+        self.content = header.content
         self.data = data
         self.folders = folders
     }
@@ -83,7 +83,7 @@ public struct Archive {
     public mutating func pack(url: URL) throws {
         let folders = try packFolder(url: url, to: "")
         let sortedFolders = folders.sorted()
-        let header = BSAHeader(version: version, flags: flags, fileFlags: fileFlags, folders: sortedFolders)
+        let header = BSAHeader(version: version, flags: flags, content: content, folders: sortedFolders)
         print(header)
     }
     

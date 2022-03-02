@@ -40,21 +40,21 @@ class UnpackingTests: XCTestCase {
     func testExtractExample() throws {
         let archive = try testExtraction("Example")
         XCTAssertEqual(archive.folderCount, 1)
-        XCTAssertEqual(archive.fileFlags, FileFlags())
+        XCTAssertEqual(archive.content, [])
         XCTAssertEqual(archive.flags, [.includeFileNames, .includeDirectoryNames, .compressed])
     }
     
     func testExtractMCMHelper() throws {
         let archive = try testExtraction("MCMHelper")
         XCTAssertEqual(archive.folderCount, 2)
-        XCTAssertEqual(archive.fileFlags, FileFlags(rawValue: 32))
+        XCTAssertEqual(archive.content, [.shaders])
         XCTAssertEqual(archive.flags, [.includeFileNames, .includeDirectoryNames, .compressed])
     }
 
     func testExtractSkyUI() throws {
         let archive = try testExtraction("SkyUI_SE")
         XCTAssertEqual(archive.folderCount, 7)
-        XCTAssertEqual(archive.fileFlags, FileFlags())
+        XCTAssertEqual(archive.content, [])
         XCTAssertEqual(archive.flags, [.includeFileNames, .includeDirectoryNames, .compressed])
     }
     

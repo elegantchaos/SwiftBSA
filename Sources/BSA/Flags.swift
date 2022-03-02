@@ -6,7 +6,7 @@
 import BinaryCoding
 import Foundation
 
-public struct BSAFlags: OptionSetFromEnum {
+public struct Flags: OptionSetFromEnum {
     public enum Options: String, EnumForOptionSet {
         case includeDirectoryNames
         case includeFileNames
