@@ -9,28 +9,15 @@ import XCTestExtensions
 
 
 class UnpackingTests: XCTestCase {
-    func testLoading() throws {
-        let url = Bundle.module.url(forResource: "Example", withExtension: "bsa")!
-        let bsa = try Archive(url: url)
-        
-        XCTAssertEqual(bsa.header.fileID, "BSA\0")
-        XCTAssertEqual(bsa.header.version, 105)
-        XCTAssertEqual(bsa.header.offset, 36)
-        XCTAssertEqual(bsa.header.flags, [.includeFileNames, .includeDirectoryNames, .compressed])
-        XCTAssertEqual(bsa.header.folderCount, 1)
-        XCTAssertEqual(bsa.header.fileCount, 1)
-        XCTAssertEqual(bsa.header.totalFolderNameLength, 29)
-        XCTAssertEqual(bsa.header.totalFileNameLength, 14)
-        XCTAssertEqual(bsa.header.fileFlags, 0)
-        XCTAssertEqual(bsa.header.padding, 0)
-    }
-    
-    @discardableResult func testExtraction(_ name: String) throws -> URL {
+    @discardableResult func testExtraction(_ name: String) throws -> Archive {
         let url = Bundle.module.url(forResource: name, withExtension: "bsa")!
         let bsa = try Archive(url: url)
         let output = outputDirectory().appendingPathComponent(name)
         try bsa.extract(to: output)
-        
+
+        XCTAssertEqual(bsa.id, "BSA\0")
+        XCTAssertEqual(bsa.version, 105)
+
         var paths: [String] = []
         let enumerator = FileManager.default.enumerator(at: output, includingPropertiesForKeys: nil, options: [.producesRelativePathURLs])!
         for case let url as URL in enumerator {
@@ -47,19 +34,28 @@ class UnpackingTests: XCTestCase {
             print(manifest)
         }
         
-        return output
+        return bsa
     }
     
     func testExtractExample() throws {
-        try testExtraction("Example")
+        let archive = try testExtraction("Example")
+        XCTAssertEqual(archive.folders.count, 1)
+        XCTAssertEqual(archive.fileFlags, 0)
+        XCTAssertEqual(archive.flags, [.includeFileNames, .includeDirectoryNames, .compressed])
     }
     
     func testExtractMCMHelper() throws {
-        try testExtraction("MCMHelper")
+        let archive = try testExtraction("MCMHelper")
+        XCTAssertEqual(archive.folders.count, 2)
+        XCTAssertEqual(archive.fileFlags, 32)
+        XCTAssertEqual(archive.flags, [.includeFileNames, .includeDirectoryNames, .compressed])
     }
 
     func testExtractSkyUI() throws {
-        try testExtraction("SkyUI_SE")
+        let archive = try testExtraction("SkyUI_SE")
+        XCTAssertEqual(archive.folders.count, 7)
+        XCTAssertEqual(archive.fileFlags, 0)
+        XCTAssertEqual(archive.flags, [.includeFileNames, .includeDirectoryNames, .compressed])
     }
     
 //    func testExtractRaceMenu() throws {

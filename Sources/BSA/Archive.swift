@@ -14,14 +14,15 @@ let unpackingChannel = Channel("BSA Unpack")
 let hashChannel = Channel("BSA Hash")
 
 public struct Archive {
+    public var id: Tag
     public var data: Data
     public var version: Int
     public var flags: BSAFlags
     public var fileFlags: UInt16
     public var folders: [BSAFolder]
-    public var files: [BSAFile]
     
     public init(version: Int = 105, flags: BSAFlags = [.includeFileNames, .includeDirectoryNames], fileFlags: UInt16 = 0) {
+        self.id = "BSA\0"
         self.version = version
         self.flags = flags
         self.fileFlags = fileFlags
@@ -73,12 +74,12 @@ public struct Archive {
             }
         }
         
+        self.id = header.fileID
         self.version = Int(header.version)
         self.flags = header.flags
         self.fileFlags = header.fileFlags
         self.data = data
         self.folders = folders
-        self.files = [] // TODO: decode root files
     }
     
     public func extract(to url: URL) throws {
@@ -127,21 +128,10 @@ public struct Archive {
     }
     
     public mutating func pack(url: URL) throws {
-        let sortedFolders: [FolderSpec]
-        let sortedFiles: [FileSpec]
-        
         let folders = try packFolder(url: url)
-        if let root = folders.last {
-            sortedFiles = root.files.sorted()
-            sortedFolders = folders.dropLast().sorted()
-        } else {
-            sortedFiles = []
-            sortedFolders = []
-        }
-        
-        var header = BSAHeader(version: version, flags: flags, fileFlags: fileFlags)
-        header.fileCount = UInt32(sortedFiles.count)
-        header.folderCount = UInt32(sortedFolders.count)
+        let sortedFolders = folders.sorted()
+        let header = BSAHeader(version: version, flags: flags, fileFlags: fileFlags, folders: sortedFolders)
+        print(header)
     }
     
     func packFolder(url: URL) throws -> [FolderSpec] {
@@ -171,49 +161,57 @@ public struct Archive {
 }
 
 struct FolderSpec {
-    let name: String
-    let nameHash: UInt64
-    let url: URL
+    let hash: UInt64
+    let name: Data
     let files: [FileSpec]
     
     init(url: URL, files: [FileSpec]) {
         let path = url.relativePath.replacingOccurrences(of: "/", with: "\\").lowercased()
         
-        self.url = url
-        self.name = path
-        self.nameHash = path.bsaHash
+        var data = Data()
+        if let bytes = path.data(using: .windowsCP1252) {
+            data.append(UInt8(bytes.count))
+            data.append(contentsOf: bytes)
+            data.append(UInt8(0))
+        }
+        
+        self.hash = path.bsaHash
         self.files = files
+        self.name = data
     }
+}
+
+extension FolderSpec: Equatable {
 }
 
 extension FolderSpec: Comparable {
     static func < (lhs: FolderSpec, rhs: FolderSpec) -> Bool {
-        lhs.nameHash < rhs.nameHash
+        lhs.hash < rhs.hash
     }
-    
-    static func == (lhs: FolderSpec, rhs: FolderSpec) -> Bool {
-        lhs.url == rhs.url
-    }
-    
-    
 }
+
 struct FileSpec {
-    let name: String
-    let nameHash: UInt64
+    let name: Data
+    let hash: UInt64
     let url: URL
     
     init(url: URL) {
-        let path = url.relativePath.replacingOccurrences(of: "/", with: "\\").lowercased()
-        
+        let name = url.lastPathComponent.lowercased()
+        var data = Data()
+        if let bytes = name.data(using: .windowsCP1252) {
+            data.append(contentsOf: bytes)
+            data.append(UInt8(0))
+        }
+
         self.url = url
-        self.name = path
-        self.nameHash = path.bsaHash
+        self.name = data
+        self.hash = name.bsaHash
     }
 }
 
 extension FileSpec: Comparable {
     static func < (lhs: FileSpec, rhs: FileSpec) -> Bool {
-        return lhs.nameHash < rhs.nameHash
+        return lhs.hash < rhs.hash
     }
     
     
