@@ -32,4 +32,8 @@ class HashTests: XCTestCase {
     func testWAV() {
         XCTAssertEqual("wibble.wav".bsaHash, 14648595538975812709)
     }
+    
+    func testTXT() {
+        XCTAssertEqual("Another.txt".bsaHash, 14617328380702844274)
+    }
 }
