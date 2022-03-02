@@ -38,6 +38,7 @@ public struct BSArchive {
                     chars.removeLast()
                 }
                 folder.name = String(bytes: chars, encoding: decoder.stringEncoding)
+                print("name: \(folder.name!), hash: \(folder.nameHash)")
             }
             
             var files: [BSAFile] = []
@@ -52,6 +53,7 @@ public struct BSArchive {
             for i in 0..<folders.count {
                 for j in 0..<folders[i].files.count {
                     folders[i].files[j].name = try decoder.decode(String.self)
+                    print("name: \(folders[i].files[j].name!), hash: \(folders[i].files[j].nameHash)")
                 }
             }
         }

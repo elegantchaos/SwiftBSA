@@ -62,7 +62,7 @@ class BSATests: XCTestCase {
         try testExtraction("SkyUI_SE")
     }
     
-    func testExtractRaceMenu() throws {
-        try testExtraction("RaceMenu")
-    }
+//    func testExtractRaceMenu() throws {
+//        try testExtraction("RaceMenu")
+//    }
 }

@@ -5,23 +5,16 @@
 
 import Foundation
 
-struct BSAHash {
-    static func hash(for url: URL) -> UInt64
-    {
-        let pathExtension = url.pathExtension
-        let path = url.deletingPathExtension().path.replacingOccurrences(of: "/", with: "\\")
-        
-        return hash(forPath: path, pathExtension: pathExtension)
-    }
-
-    static func hash(forPath nameString: String, pathExtension extString: String) -> UInt64 {
+public struct BSAHash {
+    public static func hash(forPath nameString: String, pathExtension extString: String) -> UInt64 {
         let name = nameString.lowercased().data(using: .windowsCP1252)!
         let ext = extString.lowercased().data(using: .windowsCP1252)!
         
-        let c1 = UInt32((name.count == 0) ? 0 : name.last!)
-        let c2 = UInt32((name.count < 3) ? 0 : name.dropLast().last!)
-        let c3 = UInt32(name.count)
-        let c4 = UInt32(name.first!)
+        let count = name.count
+        let c1 = UInt32((count == 0) ? 0 : name[count - 1])
+        let c2 = UInt32((count < 3) ? 0 : name[count - 2])
+        let c3 = UInt32(count)
+        let c4 = UInt32(name[0])
         
         var hash1 = c1 + (c2 << 8) + (c3 << 16) + (c4 << 24)
         switch (extString)
@@ -35,14 +28,29 @@ struct BSAHash {
 
         var hash2: UInt32 = 0
         for i in 1..<(name.count - 2) {
-            hash2 = hash2 * 0x1003f + UInt32(name[i])
+            hash2 = hash2 &* 0x1003f &+ UInt32(name[i])
         }
 
         var hash3: UInt32 = 0
         for i in 0..<ext.count {
-            hash3 = hash3 * 0x1003f + UInt32(ext[i])
+            hash3 = hash3 &* 0x1003f &+ UInt32(ext[i])
         }
 
-        return ((UInt64(hash2) + UInt64(hash3)) << 32) + UInt64(hash1)
+        let hash23 = hash2 &+ hash3
+        return (UInt64(hash23) << 32) + UInt64(hash1)
+    }
+}
+
+public extension URL {
+    var bsaHash: UInt64 {
+        let path = self.deletingPathExtension().relativePath.replacingOccurrences(of: "/", with: "\\")
+        let ext = pathExtension.isEmpty ? "" : ".\(pathExtension)"
+        return BSAHash.hash(forPath: path, pathExtension: ext)
+    }
+}
+
+public extension String {
+    var bsaHash: UInt64 {
+        return URL(fileURLWithPath: self).bsaHash
     }
 }
