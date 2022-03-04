@@ -36,6 +36,9 @@ let package = Package(
                 .product(name: "BinaryCoding", package: "BinaryCoding"),
                 .product(name: "Logger", package: "Logger"),
                 .product(name: "SWCompression", package: "SWCompression"),
+            ],
+            exclude: [
+                "hash.py"
             ]
         ),
         

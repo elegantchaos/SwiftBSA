@@ -8,9 +8,9 @@ import Compression
 import Foundation
 import Logger
 
-let packingChannel = Channel("BSA Pack")
-let unpackingChannel = Channel("BSA Unpack")
-let hashChannel = Channel("BSA Hash")
+public let packingChannel = Channel("BSA Pack")
+public let unpackingChannel = Channel("BSA Unpack")
+public let hashChannel = Channel("BSA Hash")
 
 public struct Archive {
     public var id: Tag
@@ -60,7 +60,7 @@ public struct Archive {
                     chars.removeLast()
                 }
                 name = String(bytes: chars, encoding: decoder.stringEncoding)
-                hashChannel.debug("folder: \(name!), hash: \(record.nameHash)")
+                hashChannel.debug("folder: \(name!), hash: \(String(format: "0x%0X",record.hash))")
             } else {
                 name = nil
             }
@@ -70,7 +70,7 @@ public struct Archive {
                 files.append(try decoder.decode(BSAFile.self))
             }
             
-            let folder = Folder(name: name, hash: record.nameHash, offset: record.offset, files: files)
+            let folder = Folder(name: name, hash: record.hash, offset: record.offset, files: files)
             folders.append(folder)
         }
         return folders
@@ -82,9 +82,54 @@ public struct Archive {
     
     public mutating func pack(url: URL) throws {
         let folders = try packFolder(url: url, to: "")
-        let sortedFolders = folders.sorted()
+        var sortedFolders = folders.sorted()
         let header = BSAHeader(version: version, flags: flags, content: content, folders: sortedFolders)
-        print(header)
+        
+        let encoder = DataEncoder()
+        try header.encode(to: encoder)
+
+        // write folders
+        for n in 0..<sortedFolders.count {
+            try sortedFolders[n].encodeRecordingPatch(to: encoder)
+        }
+        
+        
+        // write file records
+        let includeFolderNames = flags.contains2(.includeDirectoryNames)
+        for n in 0..<sortedFolders.count {
+            try encodeFileRecords(for: &sortedFolders[n], to: encoder, includeName: includeFolderNames, header: header)
+        }
+
+        // write file names
+        let includeFileNames = flags.contains2(.includeFileNames)
+        if includeFileNames {
+            for folder in sortedFolders {
+                for file in folder.files {
+                    try file.name.encode(to: encoder)
+                }
+            }
+        }
+        
+        // write data
+        for folder in sortedFolders {
+            for file in folder.files {
+                try file.name.encode(to: encoder)
+            }
+        }
+
+        self.data = encoder.data
+    }
+    
+    func encodeFileRecords(for folder: inout FolderPromise, to encoder: DataEncoder, includeName: Bool, header: BSAHeader) throws {
+        folder.resolvePatch(for: encoder, header: header)
+        if includeName {
+            try folder.name.encode(to: encoder)
+        }
+
+        for n in 0..<folder.files.count {
+            folder.files[n].patchLocation = UInt32(encoder.data.count)
+            try BSAFile(folder.files[n]).binaryEncode(to: encoder)
+        }
     }
     
     func packFolder(url: URL, to path: String) throws -> [FolderPromise] {
@@ -104,8 +149,6 @@ public struct Archive {
                     files.append(FileSpec(url: url))
                 }
             }
-            
-            
         }
         
         if files.count > 0 {
@@ -125,6 +168,7 @@ struct FileSpec {
     let name: Data
     let hash: UInt64
     let url: URL
+    var patchLocation: UInt32
     
     init(url: URL) {
         let name = url.lastPathComponent.lowercased()
@@ -137,6 +181,8 @@ struct FileSpec {
         self.url = url
         self.name = data
         self.hash = name.bsaHash
+        self.patchLocation = 0
+        hashChannel.debug("file: \(name), hash: \(String(format: "0x%0X",hash))")
     }
 }
 
@@ -144,6 +190,4 @@ extension FileSpec: Comparable {
     static func < (lhs: FileSpec, rhs: FileSpec) -> Bool {
         return lhs.hash < rhs.hash
     }
-    
-    
 }

@@ -25,7 +25,7 @@ public struct Folders {
                     chars.removeLast()
                 }
                 name = String(bytes: chars, encoding: decoder.stringEncoding)
-                hashChannel.debug("folder: \(name!), hash: \(record.nameHash)")
+                hashChannel.debug("folder: \(name!), hash: \(String(format: "0x%0X",record.hash))")
             } else {
                 name = nil
             }
@@ -36,7 +36,7 @@ public struct Folders {
                 files.append(try decoder.decode(BSAFile.self))
             }
             
-            let folder = Folder(name: name, hash: record.nameHash, offset: record.offset, files: files)
+            let folder = Folder(name: name, hash: record.hash, offset: record.offset, files: files)
             folders.append(folder)
         }
         

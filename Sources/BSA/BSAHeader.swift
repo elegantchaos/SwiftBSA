@@ -51,4 +51,14 @@ public struct BSAHeader: BinaryCodable {
         self.content = content
         self.padding = 0
     }
+    
+    var dataOffset: Int {
+        var offset = self.offset
+        offset += folderCount * FolderRecord.recordSize
+        offset += fileCount * BSAFile.recordSize
+        offset += totalFolderNameLength
+        offset += totalFileNameLength
+        
+        return Int(offset)
+    }
 }

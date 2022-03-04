@@ -4,17 +4,19 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 import Foundation
+import BinaryCoding
 
 /// Contains all the information needed to write a folder record.
 struct FolderPromise {
     let hash: UInt64
     let name: Data
-    let files: [FileSpec]
+    var files: [FileSpec]
+    var patchLocation: Int
     
     init(path: String, files: [FileSpec]) {
         var data = Data()
         if let bytes = path.data(using: .windowsCP1252) {
-            data.append(UInt8(bytes.count))
+            data.append(UInt8(bytes.count + 1)) // length includes zero byte
             data.append(contentsOf: bytes)
             data.append(UInt8(0))
         }
@@ -22,6 +24,17 @@ struct FolderPromise {
         self.hash = path.bsaHash
         self.files = files
         self.name = data
+        self.patchLocation = 0
+        hashChannel.debug("folder: \(path), hash: \(String(format: "0x%0X",hash))")
+    }
+    
+    mutating func encodeRecordingPatch(to encoder: DataEncoder) throws {
+        patchLocation = encoder.data.count
+        try FolderRecord(self).binaryEncode(to: encoder)
+    }
+    
+    func resolvePatch(for encoder: DataEncoder, header: BSAHeader) {
+        encoder.patch(encoder.data.count + Int(header.totalFileNameLength), at: patchLocation + FolderRecord.patchOffset)
     }
 }
 
