@@ -30,5 +30,8 @@ It's what I use for the day job, has decent cross platform support, and I needed
 ## Useful Info
 
 - File Format: https://en.uesp.net/wiki/Skyrim_Mod:Archive_File_Format
-- Other Notes: https://github.com/focustense/easymod/tree/master/Focus.Apps.EasyNpc
-
+- Some Notes: https://github.com/focustense/easymod/tree/master/Focus.Apps.EasyNpc
+- Other Implementations:
+  - https://github.com/focustense/easymod/blob/master/Focus.Storage.Archives/README.md
+  - https://github.com/Guekka/libbsarch
+  - https://github.com/TES5Edit/TES5Edit/tree/dev/Tools/BSArchive
