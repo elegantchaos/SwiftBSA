@@ -8,12 +8,13 @@ import BinaryCoding
 
 /// Contains all the information needed to write a folder record.
 struct FolderPromise {
+    let path: String
     let hash: UInt64
     let name: Data
-    var files: [FileSpec]
-    var patchLocation: Int
+    var files: [FilePromise]
+    var patch: DataEncoder.Patch?
     
-    init(path: String, files: [FileSpec]) {
+    init(path: String, files: [FilePromise]) {
         var data = Data()
         if let bytes = path.data(using: .windowsCP1252) {
             data.append(UInt8(bytes.count + 1)) // length includes zero byte
@@ -21,28 +22,19 @@ struct FolderPromise {
             data.append(UInt8(0))
         }
         
+        self.path = path
         self.hash = path.bsaHash
         self.files = files
         self.name = data
-        self.patchLocation = 0
         hashChannel.debug("folder: \(path), hash: \(String(format: "0x%0X",hash))")
     }
     
     mutating func encodeRecordingPatch(to encoder: DataEncoder) throws {
-        patchLocation = encoder.data.count
+        patch = encoder.getPatch(offset: FolderRecord.patchOffset)
         try FolderRecord(self).binaryEncode(to: encoder)
     }
     
     func resolvePatch(for encoder: DataEncoder, header: BSAHeader) {
-        encoder.patch(encoder.data.count + Int(header.totalFileNameLength), at: patchLocation + FolderRecord.patchOffset)
-    }
-}
-
-extension FolderPromise: Equatable {
-}
-
-extension FolderPromise: Comparable {
-    static func < (lhs: FolderPromise, rhs: FolderPromise) -> Bool {
-        lhs.hash < rhs.hash
+        patch?.resolve(UInt32(encoder.data.count + Int(header.totalFileNameLength)))
     }
 }

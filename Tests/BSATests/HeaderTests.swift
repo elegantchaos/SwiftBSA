@@ -12,7 +12,7 @@ class HeaderTests: XCTestCase {
     func testCounts() throws {
         let folders = [
             FolderPromise(path: "textures/clothes/blackgloves", files: [
-                .init(url: URL(fileURLWithPath: "glovesm_d.dds"))
+                .init(url: URL(fileURLWithPath: "glovesm_d.dds"), path: "textures/clothes/blackgloves")
             ])
         ]
         

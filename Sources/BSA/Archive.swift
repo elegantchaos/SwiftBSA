@@ -7,6 +7,7 @@ import BinaryCoding
 import Compression
 import Foundation
 import Logger
+import SWCompression
 
 public let packingChannel = Channel("BSA Pack")
 public let unpackingChannel = Channel("BSA Unpack")
@@ -81,29 +82,30 @@ public struct Archive {
     }
     
     public mutating func pack(url: URL) throws {
-        let folders = try packFolder(url: url, to: "")
-        var sortedFolders = folders.sorted()
-        let header = BSAHeader(version: version, flags: flags, content: content, folders: sortedFolders)
+        var folders = try getFolders(url: url, to: "").sorted(by: { $0.hash < $1.hash })
+        let header = BSAHeader(version: version, flags: flags, content: content, folders: folders)
         
         let encoder = DataEncoder()
         try header.encode(to: encoder)
 
-        // write folders
-        for n in 0..<sortedFolders.count {
-            try sortedFolders[n].encodeRecordingPatch(to: encoder)
+        let includeFolderNames = flags.contains2(.includeDirectoryNames)
+        let includeFileNames = flags.contains2(.includeFileNames)
+        let embedFullPath = flags.contains2(.embeddedFileNames)
+        let compressData = flags.contains2(.compressed)
+        
+        // write folder records
+        for n in 0..<folders.count {
+            try folders[n].encodeRecordingPatch(to: encoder)
         }
         
-        
         // write file records
-        let includeFolderNames = flags.contains2(.includeDirectoryNames)
-        for n in 0..<sortedFolders.count {
-            try encodeFileRecords(for: &sortedFolders[n], to: encoder, includeName: includeFolderNames, header: header)
+        for n in 0..<folders.count {
+            try encodeFileRecords(for: &folders[n], to: encoder, includeName: includeFolderNames, header: header)
         }
 
         // write file names
-        let includeFileNames = flags.contains2(.includeFileNames)
         if includeFileNames {
-            for folder in sortedFolders {
+            for folder in folders {
                 for file in folder.files {
                     try file.name.encode(to: encoder)
                 }
@@ -111,9 +113,31 @@ public struct Archive {
         }
         
         // write data
-        for folder in sortedFolders {
+        for folder in folders {
             for file in folder.files {
-                try file.name.encode(to: encoder)
+                let raw = try Data(contentsOf: file.url)
+                let data: Data
+                let size: Int
+                
+                if compressData {
+                    data = LZ4.compress(data: raw)
+                    size = data.count + 4
+                } else {
+                    data = raw
+                    size = data.count
+                }
+                
+                file.resolvePatches(for: encoder, size: size)
+                if embedFullPath {
+                    try file.path.encode(to: encoder)
+                }
+
+                if compressData {
+                    let originalSize = UInt32(raw.count)
+                    try originalSize.encode(to: encoder)
+                }
+                
+                try data.encode(to: encoder)
             }
         }
 
@@ -127,16 +151,15 @@ public struct Archive {
         }
 
         for n in 0..<folder.files.count {
-            folder.files[n].patchLocation = UInt32(encoder.data.count)
-            try BSAFile(folder.files[n]).binaryEncode(to: encoder)
+            try folder.files[n].encodeRecordingPatches(to: encoder)
         }
     }
     
-    func packFolder(url: URL, to path: String) throws -> [FolderPromise] {
+    func getFolders(url: URL, to path: String) throws -> [FolderPromise] {
         let fm = FileManager.default
         
         var folders: [FolderPromise] = []
-        var files: [FileSpec] = []
+        var files: [FilePromise] = []
         let urls = try fm.contentsOfDirectory(at: url, includingPropertiesForKeys: nil)
         for url in urls {
             var isDirectory: ObjCBool = false
@@ -144,15 +167,15 @@ public struct Archive {
                 if isDirectory.boolValue {
                     let name = url.lastPathComponent.lowercased()
                     let subpath = path.isEmpty ? name : "\(path)\\\(name)"
-                    folders.append(contentsOf: try packFolder(url: url, to: subpath))
+                    folders.append(contentsOf: try getFolders(url: url, to: subpath))
                 } else {
-                    files.append(FileSpec(url: url))
+                    files.append(FilePromise(url: url, path: path))
                 }
             }
         }
         
         if files.count > 0 {
-            let thisFolder = FolderPromise(path: path, files: files)
+            let thisFolder = FolderPromise(path: path, files: files.sorted(by: { $0.hash < $1.hash }))
             folders.append(thisFolder)
         }
         
@@ -161,33 +184,5 @@ public struct Archive {
     
     public var folderCount: Int {
         folders.folders.count
-    }
-}
-
-struct FileSpec {
-    let name: Data
-    let hash: UInt64
-    let url: URL
-    var patchLocation: UInt32
-    
-    init(url: URL) {
-        let name = url.lastPathComponent.lowercased()
-        var data = Data()
-        if let bytes = name.data(using: .windowsCP1252) {
-            data.append(contentsOf: bytes)
-            data.append(UInt8(0))
-        }
-
-        self.url = url
-        self.name = data
-        self.hash = name.bsaHash
-        self.patchLocation = 0
-        hashChannel.debug("file: \(name), hash: \(String(format: "0x%0X",hash))")
-    }
-}
-
-extension FileSpec: Comparable {
-    static func < (lhs: FileSpec, rhs: FileSpec) -> Bool {
-        return lhs.hash < rhs.hash
     }
 }

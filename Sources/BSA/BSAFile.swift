@@ -15,6 +15,8 @@ public struct BSAFile: BinaryCodable {
     var size: UInt32 { rawSize & 0x3FFFFFFF }
 
     static var recordSize: UInt32 { 16 }
+    static var sizeOffset: Int { 8 }
+    static var offsetOffset: Int { 12 }
     
     public init(fromBinary decoder: BinaryDecoder) throws {
         var container = try decoder.unkeyedContainer()
@@ -28,7 +30,7 @@ public struct BSAFile: BinaryCodable {
         self.isCompressed = flipCompressed ? !archiveIsCompressed : archiveIsCompressed
     }
     
-    init(_ file: FileSpec) {
+    init(_ file: FilePromise) {
         self.name = nil
         self.nameHash = file.hash
         self.rawSize = 0

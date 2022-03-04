@@ -94,7 +94,9 @@ public struct Folders {
                     let decompressed = try LZ4.decompress(data: compressedData)
                     assert(originalLength == decompressed.count)
                     try decompressed.write(to: fileURL)
+                    unpackingChannel.log("unpacked: \(fileName), size: \(size), decompressed: \(decompressed.count)")
                 } else {
+                    unpackingChannel.log("unpacked: \(fileName), size: \(size)")
                     let fileData = data[offset..<offset+size]
                     try fileData.write(to: fileURL)
                 }
