@@ -31,8 +31,11 @@ public struct Archive {
     }
     
     public init(url: URL) throws {
-        
         let data = try Data(contentsOf: url)
+        try self.init(data: data)
+    }
+    
+    public init(data: Data) throws {
         let decoder = BSADecoder(data: data)
         let header = try decoder.decode(BSAHeader.self)
         
@@ -120,8 +123,8 @@ public struct Archive {
                 let size: Int
                 
                 if compressData {
-//                    data = LZ4.compress(data: raw)
-                    data = LZ4.compress(data: raw, independentBlocks: true, blockChecksums: false, contentChecksum: false, contentSize: false, blockSize: 105592, dictionary: nil, dictionaryID: nil)
+                    data = LZ4.compress(data: raw)
+//                    data = LZ4.compress(data: raw, independentBlocks: true, blockChecksums: false, contentChecksum: false, contentSize: false, blockSize: 105592, dictionary: nil, dictionaryID: nil)
                     size = data.count + 4
                 } else {
                     data = raw
