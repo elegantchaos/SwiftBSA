@@ -38,8 +38,8 @@ class UnpackingTests: XCTestCase {
     }
     
     func testExtractExample() throws {
-        hashChannel.enabled = true
-        unpackingChannel.enabled = true
+        hashChannel.enabled = false
+        unpackingChannel.enabled = false
         
         let archive = try testExtraction("Example")
         XCTAssertEqual(archive.folderCount, 1)
