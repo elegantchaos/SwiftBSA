@@ -58,20 +58,6 @@
                BlueprintName = "BSATests"
                ReferencedContainer = "container:">
             </BuildableReference>
-            <SkippedTests>
-               <Test
-                  Identifier = "HashTests">
-               </Test>
-               <Test
-                  Identifier = "HeaderTests">
-               </Test>
-               <Test
-                  Identifier = "UnpackingTests/testExtractMCMHelper()">
-               </Test>
-               <Test
-                  Identifier = "UnpackingTests/testExtractSkyUI()">
-               </Test>
-            </SkippedTests>
          </TestableReference>
       </Testables>
    </TestAction>

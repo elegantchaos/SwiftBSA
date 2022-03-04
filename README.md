@@ -8,10 +8,24 @@ Support for earlier versions may be added at some later date.
 
 ## Here Be Dragons
 
-This is an early version, and it currently only supports extracting a `.bsa` file to a directory.
+This is an early version, and it currently only supports extracting a `.bsa` file to a directory, and packing a directory to a compressed archive.
 
-More coming eventually. 
+Right now it's just a library and some tests. 
 
+The next step will be to add a command line tool target, but I envisage it mostly being used as a library, linked to by other tools. 
+
+## Why?
+
+This is part of a [larger tools project](https://github.com/elegantchaos/SkyrimFileFormat).
+
+### Why Swift?
+
+It's what I use for the day job, has decent cross platform support, and I needed an excuse to mess around with some binary streaming and async/await things. 
+
+### Why Cross Platform?
+
+1. Although I play Skyrim on a PC, I do most of my coding work on a Mac.
+2. OpenMW supports Windows/MacOS/Linux. At some point I'd like to extend this tool and the other things I'm working on to support OpenMW.
 
 ## Useful Info
 
