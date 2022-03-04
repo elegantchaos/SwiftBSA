@@ -123,8 +123,9 @@ public struct Archive {
                 let size: Int
                 
                 if compressData {
-                    data = LZ4.compress(data: raw)
+//                    data = LZ4.compress(data: raw)
 //                    data = LZ4.compress(data: raw, independentBlocks: true, blockChecksums: false, contentChecksum: false, contentSize: false, blockSize: 105592, dictionary: nil, dictionaryID: nil)
+                    data = LZ4.compress(data: raw, independentBlocks: false, blockChecksums: false, contentChecksum: false, contentSize: false, blockSize: 4 * 1024 * 1024, dictionary: nil, dictionaryID: nil)
                     size = data.count + 4
                 } else {
                     data = raw
