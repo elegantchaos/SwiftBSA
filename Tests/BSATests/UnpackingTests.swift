@@ -60,7 +60,14 @@ class UnpackingTests: XCTestCase {
         XCTAssertEqual(archive.content, [])
         XCTAssertEqual(archive.flags, [.includeFileNames, .includeDirectoryNames, .compressed])
     }
-    
+
+    func testCollegeEntry() throws {
+        let archive = try testExtraction("CollegeEntry")
+        XCTAssertEqual(archive.folderCount, 7)
+        XCTAssertEqual(archive.content, [])
+        XCTAssertEqual(archive.flags, [.includeFileNames, .includeDirectoryNames, .compressed])
+    }
+
 //    func testExtractRaceMenu() throws {
 //        try testExtraction("RaceMenu")
 //    }
