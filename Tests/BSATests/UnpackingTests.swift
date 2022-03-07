@@ -54,18 +54,18 @@ class UnpackingTests: XCTestCase {
         XCTAssertEqual(archive.flags, [.includeFileNames, .includeDirectoryNames, .compressed])
     }
 
-    func testExtractSkyUI() throws {
-        let archive = try testExtraction("SkyUI_SE")
-        XCTAssertEqual(archive.folderCount, 7)
-        XCTAssertEqual(archive.content, [])
-        XCTAssertEqual(archive.flags, [.includeFileNames, .includeDirectoryNames, .compressed])
+    func testThugsNotAssassins() throws {
+        let archive = try testExtraction("ThugsNotAssassins")
+        XCTAssertEqual(archive.folderCount, 2)
+        XCTAssertEqual(archive.content, [.sounds])
+        XCTAssertEqual(archive.flags, [.includeFileNames, .includeDirectoryNames, .retainFileNames])
     }
 
     func testCollegeEntry() throws {
         let archive = try testExtraction("CollegeEntry")
-        XCTAssertEqual(archive.folderCount, 7)
-        XCTAssertEqual(archive.content, [])
-        XCTAssertEqual(archive.flags, [.includeFileNames, .includeDirectoryNames, .compressed])
+        XCTAssertEqual(archive.folderCount, 4)
+        XCTAssertEqual(archive.content, [.sounds])
+        XCTAssertEqual(archive.flags, [.includeFileNames, .includeDirectoryNames, .retainFileNames])
     }
 
 //    func testExtractRaceMenu() throws {
