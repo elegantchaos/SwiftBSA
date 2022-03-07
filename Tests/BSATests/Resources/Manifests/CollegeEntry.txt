@@ -1,0 +1,40 @@
+scripts
+scripts/qf_mg02_0001f252.pex, 9794
+scripts/mgclassroomtriggerscript.pex, 1277
+scripts/tif__000b810e.pex, 943
+scripts/mgiadditemkeyaliasscript.pex, 1154
+scripts/tif__000855f8.pex, 906
+scripts/tif__000b8110.pex, 943
+scripts/tif__00020029.pex, 1920
+scripts/mg04augurspeakertriggerscript.pex, 539
+scripts/tif__00021a6a.pex, 952
+scripts/mgrshellscript.pex, 1598
+scripts/mg01wellcollisionscript.pex, 979
+scripts/prkf_mg04blockarchmagesquart_03000d6e.pex, 759
+scripts/tif__faraldaresponseconjuration.pex, 831
+scripts/tif__faraldaresponserestoration.pex, 831
+scripts/mgcollegelecturesquestscript.pex, 4028
+scripts/tif__mirabellestage30tourskip.pex, 717
+scripts/qf_mgcollegelectures_000e0c67.pex, 1387
+scripts/tif__faraldaresponsealteration.pex, 829
+scripts/qf_mgisetupquest_03000d6b.pex, 1388
+scripts/mgisetlocklevelaliasscript.pex, 757
+scripts/mg04augurspeakertriggerexscript.pex, 1108
+scripts/qf_mg01_0001f251.pex, 5637
+scripts/qf_mgr21_000e0e04.pex, 1699
+scripts/tif__000af0ec.pex, 795
+scripts/tif__000af0e5.pex, 795
+scripts/tif__000af0e6.pex, 943
+sound
+sound/voice
+sound/voice/skyrim.esm
+sound/voice/skyrim.esm/femaleuniquemirabelleervine
+sound/voice/skyrim.esm/femaleuniquemirabelleervine/mg01_mg01mirabellestage30t_00020027_1.fuz, 12316
+sound/voice/collegeentry.esp
+sound/voice/collegeentry.esp/femaleuniquemirabelleervine
+sound/voice/collegeentry.esp/femaleuniquemirabelleervine/mg01_mg01mirabellestage30t_00000d6a_2.fuz, 38480
+sound/voice/collegeentry.esp/femaleuniquemirabelleervine/mg01_mg01mirabellestage30t_00000d6a_3.fuz, 61542
+sound/voice/collegeentry.esp/femaleuniquemirabelleervine/mg01_mg01mirabellestage30t_00000d6a_1.fuz, 13636
+sound/voice/collegeentry.esp/femalesultry
+sound/voice/collegeentry.esp/femalesultry/mg01__00000d86_1.fuz, 60910
+sound/voice/collegeentry.esp/femalesultry/mg01__00000d62_1.fuz, 60364

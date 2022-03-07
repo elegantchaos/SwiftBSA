@@ -57,6 +57,7 @@ class PackingTests: XCTestCase {
                 XCTAssertEqual(manifest, loadedManifest)
             } else {
                 print(manifest)
+                XCTFail("Manifest missing for \(name)")
             }
         }
     }

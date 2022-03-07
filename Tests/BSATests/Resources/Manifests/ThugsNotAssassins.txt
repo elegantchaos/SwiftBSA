@@ -1,0 +1,30 @@
+scripts
+scripts/tna_tif__searchsuccess.pex, 830
+scripts/sf_wiadditem03scene_00035b60.pex, 623
+scripts/tna_tif__searchfail.pex, 682
+scripts/pf_wiadditem03huntplayer_00035b62.pex, 618
+scripts/tna_wiadditem03playerfightscript.pex, 645
+scripts/tna_tif__walkaway.pex, 693
+scripts/tna_tif__thugbegin.pex, 722
+scripts/tna_tif__giveup.pex, 689
+scripts/tna_tif__persuadesuccess.pex, 834
+scripts/tna_wiadditem03playerscript.pex, 2786
+scripts/tna_wiadditem03thugscript.pex, 1430
+scripts/tna_tif__persuadefail.pex, 686
+scripts/tna_tif__bribesuccess.pex, 825
+scripts/qf_wiadditem03_00035b5a.pex, 4269
+scripts/wiadditem03script.pex, 4811
+scripts/tna_tif__acttough.pex, 678
+scripts/tna_tif__letsfight.pex, 695
+sound
+sound/voice
+sound/voice/thugsnotassassins.esp
+sound/voice/thugsnotassassins.esp/malenord
+sound/voice/thugsnotassassins.esp/malenord/wiadditem0_wiadditem03askw_0000080a_1.fuz, 33774
+sound/voice/thugsnotassassins.esp/malenord/wiadditem0_wiadditem03admi_0000080c_1.fuz, 38518
+sound/voice/thugsnotassassins.esp/malenord/wiadditem0_wiadditem03pers_00000817_1.fuz, 23014
+sound/voice/thugsnotassassins.esp/malenord/wiadditem0_wiadditem03actt_0000080e_1.fuz, 29019
+sound/voice/thugsnotassassins.esp/malenord/wiadditem0_wiadditem03sear_00000814_2.fuz, 38090
+sound/voice/thugsnotassassins.esp/malenord/wiadditem0_wiadditem03sear_00000814_1.fuz, 23532
+sound/voice/thugsnotassassins.esp/malenord/wiadditem0_wiadditem03walk_00000808_1.fuz, 10592
+sound/voice/thugsnotassassins.esp/malenord/wiadditem0_wiadditem03give_00000810_1.fuz, 26271
