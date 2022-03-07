@@ -68,4 +68,13 @@ class PackingTests: XCTestCase {
     func testMCM() throws {
         try testRoundtrip("MCMHelper")
     }
+
+    func testCollegeEntry() throws {
+        try testRoundtrip("CollegeEntry")
+    }
+
+    func testThugsNotAssassins() throws {
+        try testRoundtrip("ThugsNotAssassins")
+    }
+
 }

@@ -37,16 +37,6 @@ class UnpackingTests: XCTestCase {
         return bsa
     }
     
-    func testExtractExample() throws {
-        hashChannel.enabled = false
-        unpackingChannel.enabled = false
-        
-        let archive = try testExtraction("Example")
-        XCTAssertEqual(archive.folderCount, 1)
-        XCTAssertEqual(archive.content, [])
-        XCTAssertEqual(archive.flags, [.includeFileNames, .includeDirectoryNames, .compressed])
-    }
-    
     func testExtractMCMHelper() throws {
         let archive = try testExtraction("MCMHelper")
         XCTAssertEqual(archive.folderCount, 2)
