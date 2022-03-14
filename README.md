@@ -30,12 +30,13 @@ It's what I use for the day job, has decent cross platform support, and I needed
 ## Useful Info
 
 - File Format: https://en.uesp.net/wiki/Skyrim_Mod:Archive_File_Format
+- Pyffi definitions (possibly incomplete): https://github.com/niftools/pyffi/blob/develop/pyffi/formats/bsa/bsa.xml
 - Some Notes: https://github.com/focustense/easymod/tree/master/Focus.Apps.EasyNpc
 - Other Implementations:
   - https://github.com/focustense/easymod/blob/master/Focus.Storage.Archives/README.md
   - https://github.com/Guekka/libbsarch
   - https://github.com/TES5Edit/TES5Edit/tree/dev/Tools/BSArchive
-
+  
 ### Example Data
 
 The example data in this repo is taken from [Parapets](https://www.nexusmods.com/skyrimspecialedition/users/39501725), who helpful makes all their mods available under an MIT license.
