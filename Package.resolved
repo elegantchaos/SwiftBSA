@@ -5,18 +5,36 @@
         "package": "BinaryCoding",
         "repositoryURL": "https://github.com/elegantchaos/BinaryCoding.git",
         "state": {
-          "branch": "main",
-          "revision": "db847fa15fe3bdfa4ba581ce3db666c2c76b9341",
-          "version": null
+          "branch": null,
+          "revision": "095634b83bee9f7bdd286d8dc5396ef1353a17ba",
+          "version": "1.0.2"
+        }
+      },
+      {
+        "package": "BitByteData",
+        "repositoryURL": "https://github.com/tsolomko/BitByteData",
+        "state": {
+          "branch": null,
+          "revision": "c119e12decae8f56066df3345a4ac1a05b2f06d5",
+          "version": "2.0.1"
         }
       },
       {
         "package": "Bytes",
         "repositoryURL": "https://github.com/elegantchaos/Bytes.git",
         "state": {
-          "branch": "float-support",
+          "branch": null,
           "revision": "dfd75eda165e698ec971dafc7a1bf469ca361ac6",
-          "version": null
+          "version": "0.2.3"
+        }
+      },
+      {
+        "package": "Logger",
+        "repositoryURL": "https://github.com/elegantchaos/Logger.git",
+        "state": {
+          "branch": null,
+          "revision": "50da0037cd25c2f9444effbb2afe15bb00f70a98",
+          "version": "1.7.3"
         }
       },
       {
@@ -26,6 +44,15 @@
           "branch": null,
           "revision": "0f523c77bf4b0dbbdc0838b952262ed45fab17f8",
           "version": "1.0.6"
+        }
+      },
+      {
+        "package": "SWCompression",
+        "repositoryURL": "https://github.com/tsolomko/SWCompression.git",
+        "state": {
+          "branch": null,
+          "revision": "4ad6940f2990f2d9f27b39d013c7a64b602d9c50",
+          "version": "4.8.0"
         }
       },
       {

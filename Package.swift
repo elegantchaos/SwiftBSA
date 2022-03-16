@@ -8,7 +8,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "BSA",
+    name: "SwiftBSA",
     
     platforms: [
         .macOS(.v12)
@@ -16,12 +16,12 @@ let package = Package(
     
     products: [
         .library(
-            name: "BSA",
-            targets: ["BSA"]),
+            name: "SwiftBSA",
+            targets: ["SwiftBSA"]),
     ],
     
     dependencies: [
-        .package(url: "https://github.com/elegantchaos/BinaryCoding.git", from: "1.0.0"),
+        .package(url: "https://github.com/elegantchaos/BinaryCoding.git", from: "1.0.2"),
         .package(url: "https://github.com/elegantchaos/Logger.git", from: "1.7.3"),
         .package(url: "https://github.com/tsolomko/SWCompression.git", .upToNextMajor(from: "4.7.0")),
         .package(url: "https://github.com/elegantchaos/XCTestExtensions.git", from: "1.4.2")
@@ -30,7 +30,7 @@ let package = Package(
     targets: [
         
         .target(
-            name: "BSA",
+            name: "SwiftBSA",
             dependencies: [
                 .product(name: "BinaryCoding", package: "BinaryCoding"),
                 .product(name: "Logger", package: "Logger"),
@@ -42,8 +42,8 @@ let package = Package(
         ),
         
         .testTarget(
-            name: "BSATests",
-            dependencies: ["BSA", "XCTestExtensions"],
+            name: "SwiftBSATests",
+            dependencies: ["SwiftBSA", "XCTestExtensions"],
             resources: [
                 .process("Resources/Packed"),
                 .process("Resources/Manifests"),
