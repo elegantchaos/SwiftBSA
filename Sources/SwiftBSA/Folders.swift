@@ -24,7 +24,7 @@ public struct Folders {
                 if chars.last == 0 {
                     chars.removeLast()
                 }
-                name = String(bytes: chars, encoding: decoder.stringEncoding)
+                name = String(bytes: chars, encoding: decoder.bsaStringEncoding)
                 hashChannel.debug("folder: \(name!), hash: \(String(format: "0x%0X",record.hash))")
             } else {
                 name = nil

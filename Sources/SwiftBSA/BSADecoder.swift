@@ -6,6 +6,10 @@
 import BinaryCoding
 import Foundation
 
+extension BinaryDecoder {
+    var bsaStringEncoding: String.Encoding { .windowsCP1252 }
+}
+
 class BSADecoder: DataDecoder {
     var header: BSAHeader?
 }
