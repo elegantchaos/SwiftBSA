@@ -1,4 +1,4 @@
-# BSA
+# SwiftBSA
 
 Swift support for Bethesda's BSA file format, as used by Skyrim, Fallout, etc.
 
@@ -16,7 +16,7 @@ The next step will be to add a command line tool target, but I envisage it mostl
 
 ## Why?
 
-This is part of a [larger tools project](https://github.com/elegantchaos/SkyrimFileFormat).
+This is part of a [larger tools project](https://github.com/elegantchaos/SkyrimCompiler).
 
 ### Why Swift?
 
