@@ -24,7 +24,7 @@ let package = Package(
         .package(url: "https://github.com/elegantchaos/BinaryCoding.git", from: "1.0.2"),
         .package(url: "https://github.com/elegantchaos/Logger.git", from: "1.7.3"),
         .package(url: "https://github.com/tsolomko/SWCompression.git", from: "4.7.0"),
-        .package(url: "https://github.com/elegantchaos/XCTestExtensions.git", from: "1.4.2")
+        .package(url: "https://github.com/elegantchaos/XCTestExtensions.git", from: "1.4.6")
     ],
     
     targets: [
